@@ -9,76 +9,101 @@
 #include <stdio.h>
 #include <string.h>
 
-//Entrega un puntero a un programa 
-Program* init_program(int n_arg, char* name){
-	// Pido memoria para el programa
-	Program* program = malloc(sizeof(Program));
+//Entrega un puntero a un prceso 
+Process* init_process(char* name, int start_time, int N){
+	// Pido memoria para el proceso
+	Process* process = malloc(sizeof(Process));
 
-	program->name = strdup(name);
-	program->start_time = 0;
-	program->end_time = 0;
-	program->n_arg = n_arg;
-	program->status = 0;
-	program->process_pid = 0;
+	strcpy(process->name, name);
+	process->status = UNDEFINED;
+	process->N = N;
+	process->A = (int*)calloc(N, sizeof(int));
+	process->B = (int*)calloc(N-1, sizeof(int));
+	process->start_time = start_time;
 
-	program->arg = (char**)calloc(n_arg, sizeof(char*));
-
-	return program;
+	// Retornamos el proceso
+	return process;
 }
+Queue* init_queue(int len){
+	// Pido memoria para la cola
+	Queue* q = malloc(sizeof(Queue));
 
-//Lee el archivo y retorna un array con punteros a los programas
-Program** read_file(const char* name_file){
+	q->process_array =(Process**)calloc(len,sizeof(Process*));
+	q->len = len;
 
-	//LinkedList* list = ll_init();
+	// Retornamos la cola
+	return q;
+}
+//Lee el archivo y retorna una cola con procesos
+Queue* read_file(const char* name_file){
 
+	//Inicializo variables auxiliares para leer el archivo
 	char* line = NULL; 
 	size_t size = 0;
 
 	// Abro el archivo
 	FILE* file = fopen(name_file, "r");
 	getline(&line, &size, file);
-	int N = atoi(line);
+	strip(line);
+	// Cantidad de procesos en el archivo
+	int M = atoi(line);
 
-	Program** list = (Program**)calloc(N, sizeof(Program*));
+	//Declaramos una cola de procesos
+	Queue* queue = init_queue(M);
 
-	Program* program;
-
-	for(int i=0; i<N; i++){
+	//Por cada uno de los procesos
+	for(int i=0; i<M; i++){
 		getline(&line, &size, file);
-		int n_arg = atoi(strtok(line, " "));
-		char* name = strtok(NULL, " ");
-		strip(name);
+		//strip(line);
+		char* name = strtok(line, " ");
+		int start_time = atoi(strtok(NULL, " "));
+		int N = atoi(strtok(NULL, " "));
 
-		program = init_program(n_arg, name);
+		// Inicializamos un nuevo proceso
+		Process* process = init_process(name, start_time, N);
 
-		for(int j=0;j<n_arg;j++){
-			char* token = strtok(NULL, " ");
-			strip(token);
-			program->arg[j] = strdup(token);
+		for(int j=0;j<N;j++){
+			// Asignamos rafaga de ejecucion
+			process->A[j] = atoi(strtok(NULL, " "));
+			if(j+1<N){
+				// Asignamos tiempo de espera
+				process->B[j] = atoi(strtok(NULL, " "));
+			}
 		}
 
-		//l_append(list, program);
-		list[i] = program;
+		queue->process_array[i] = process;
 	}
 
 	//Liberamos la linea
 	free(line);
 	//Cerramos el archivo
 	fclose(file);	
-	//Retornamos la lista con los programas
-	return list;
+	//Retornamos la cola con los procesos
+	return queue;
 }
 
-//Destruye el programa
-void destroy_program(Program* program){
-	for(int i=0; i<program->n_arg;i++){
-		free(program->arg[i]);
+//Destruye el proceso
+void destroy_process(Process* process){
+	// Liberamos las rafagas de ejecucion
+	free(process->A);
+	// Liberamos los tiempos de espera
+	free(process->B);
+	// Liberamos el nombre
+	free(process->name); //// VERIFICAR SI ES NECESARIO
+	// Liberamos el proceso
+	free(process);
+}
+
+//Destruye la cola de procesos
+void destroy_queue(Queue* queue){
+	// Destruimos cada uno de los procesos
+	for(int i=0; i<queue->len; i++){
+		destroy_process(queue->process_array[i]);
 	}
-	free(program->arg);
-	program->arg = NULL;
-	free(program->name);
-	free(program);
-	program = NULL;
+	// Liberamos el array de procesos
+	free(queue->process_array);
+	// Liberamos la cola
+	free(queue);
 }
 
 //Funcion auxiliar. Quita el salto de linea a un string
