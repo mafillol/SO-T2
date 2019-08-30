@@ -43,7 +43,7 @@ LIB=$(MTH)
 ###############################################################################
 
 # Directorios con elementos de uso común
-COMMON=process
+COMMON=process queue
 
 # Directorios que serán compilados a un programa
 PROGRAMS=scheduler
