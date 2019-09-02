@@ -16,8 +16,11 @@ Process* init_process(char* name, int start_time, int N){
 	process->start_time = start_time;
 	process->n = 0;
 	process -> cpu_shifts = 0;
-	process->first_time = -1;
+	process->response_time = -1;
 	process->cpu_interruption = 0;
+	process->turn_around_time = 0;
+	process->waiting_time = 0;
+	process->priority = 50000;
 
 	// Retornamos el proceso
 	return process;

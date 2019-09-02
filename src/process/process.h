@@ -35,13 +35,17 @@ typedef struct process
   /** Tiempo en que el proceso llega a la simulacion*/
   int start_time;
   /** Tiempo en que el proceso ingresa por primera vez a la CPU*/
-  int first_time;
+  int response_time;
   /** Posicion actual en que se va recorriendo A y B*/
   int n;
   /** Cantidad de veces que fue elegido para usar la CPU*/
   int cpu_shifts;
   /** Cantidad de veces que la CPU fue interrumpida*/
   int cpu_interruption;
+  /** Tiempo total que le toma al proceso terminar su ejecucion*/
+  int turn_around_time;
+  /** Tiempo total que el proceso estuvo en espera*/
+  int waiting_time;
 } Process;
 
 

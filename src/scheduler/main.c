@@ -18,8 +18,6 @@ int main(int argc, char *argv[]){
 
   // Mientras no terminemos todos los procesos
   while(!is_finished(queue)){
-    //Variable auxiliar para ver si un proceso ya corrio en el ciclo 
-    bool run = false; 
     for(int i=0;i<queue->len;i++){
       Process* p = queue->process_array[i];
       //Revisamos si algun proceso "llega"
@@ -41,35 +39,53 @@ int main(int argc, char *argv[]){
       }
       // Ordenamos la cola
       selection_sort(queue);
+    }
+
+    //Variable auxiliar para ver si un proceso ya corrio en el ciclo 
+    bool run = false; 
+    for(int i=0;i<queue->len;i++){
+      Process* p = queue->process_array[i];
 
       // Corremos el proceso
       if((p->status == RUNNING || p->status == READY) && run == false){
         if(p->status == RUNNING){
           p->A[p->n]--;
         }
-        else{
+        // Proceso a correr saco a otro proceso
+        else if (p->status == READY){
           p->status = RUNNING;
           p->A[p->n]--;
+          p->cpu_shifts++;
+          p->waiting_time++;
         }
-        if(p->first_time == -1){
-          p->first_time = current_time;
+
+        // Asignamos tiempo de respuesta
+        if(p->response_time == -1){
+          p->response_time = current_time - p->start_time;
         }
         run = true;
       }
+
       // Veo si el proceso fue sacado
       else if(p->status == RUNNING){
         p->status = READY;
         p->cpu_interruption++;
       }
       // Reduzco un tiempo de espera
-      else if(p->status == WAITING){
+      if(p->status == WAITING){
         p->B[p->n]--;
+        p->waiting_time++;
+      }
+      // Aumento un tiempo de espera
+      else if(p->status == READY){
+        p->waiting_time++;
       } 
 
 
       // Revisamos si algun proceso termina
-      if(p->n == p->N-1 && p->A[p->n] == 0 &&p->status == RUNNING){
+      if(p->n == p->N-1 && p->A[p->n] == 0 && p->status == RUNNING){
         p->status = FINISHED;
+        p->turn_around_time = current_time + 1 - p->start_time; //Reviasar el +1
       }
 
       // Revisamos si algun poceso pasa a waiting
@@ -94,7 +110,7 @@ int main(int argc, char *argv[]){
 
     for(int i=0; i<queue->len; i++){
       Process* p = queue->process_array[i];
-      fprintf(file, "%s,%d,%d\n", p->name,p->cpu_shifts, p->cpu_interruption);
+      fprintf(file, "%s,%d,%d,%d,%d,%d\n", p->name,p->cpu_shifts, p->cpu_interruption, p->turn_around_time, p->response_time,p->waiting_time);
     }
   // Cerramos el archivo de salida
   fclose(file);
