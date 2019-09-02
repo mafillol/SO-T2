@@ -130,9 +130,6 @@ void strip(char* string){
   string[strcspn (string,"\n")] = '\0';
 }
 
-
-
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // IMPORTANTE - REFERENCIA                                                            //
 // Quita el salto de linea a un string obtenida de                                    //

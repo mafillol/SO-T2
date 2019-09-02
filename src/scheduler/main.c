@@ -18,7 +18,6 @@ int main(int argc, char *argv[]){
 
   // Mientras no terminemos todos los procesos
   while(!is_finished(queue)){
-
     //Actualizamos nuestra cola de procesos
     for(int i=0;i<queue->len;i++){
       Process* p = queue->process_array[i];
@@ -49,7 +48,7 @@ int main(int argc, char *argv[]){
       Process* p = queue->process_array[i];
 
       // Corremos el proceso
-      if((p->status == RUNNING || p->status == READY) && run == false){
+      if((p->status == RUNNING && run == false)||( p->status == READY && run == false)){
         if(p->status == RUNNING){
           p->A[p->n]--;
         }
@@ -86,7 +85,7 @@ int main(int argc, char *argv[]){
       // Revisamos si algun proceso termina
       if(p->n == p->N-1 && p->A[p->n] == 0 && p->status == RUNNING){
         p->status = FINISHED;
-        p->turn_around_time = current_time + 1 - p->start_time; //Reviasar el +1
+        p->turn_around_time = current_time + 1 - p->start_time;
       }
 
       // Revisamos si algun poceso pasa a waiting

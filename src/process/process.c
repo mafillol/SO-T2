@@ -20,7 +20,7 @@ Process* init_process(char* name, int start_time, int N){
 	process->cpu_interruption = 0;
 	process->turn_around_time = 0;
 	process->waiting_time = 0;
-	process->priority = 50000;
+	process->priority = 0;
 	process->PID = -1;
 
 	// Retornamos el proceso
@@ -30,7 +30,7 @@ Process* init_process(char* name, int start_time, int N){
 // Prioridad long-sighted
 int ls_priority(Process* p){
 	int count = 0;
-	for(int i=0;i<p->N;i++){
+	for(int i=p->n;i<p->N;i++){
 		count += p->A[i];
 	}
 	return count;
@@ -38,7 +38,10 @@ int ls_priority(Process* p){
 
 // Prioridad short-sigthed
 int ss_priority(Process* p){
-	return p->A[p->n];
+	if(p->status == WAITING){
+		return p->A[p->n+1];
+	}
+	return p->A[p->n];	
 }
 
 //Destruye el proceso
