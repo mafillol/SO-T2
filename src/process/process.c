@@ -15,6 +15,9 @@ Process* init_process(char* name, int start_time, int N){
 	process->B = (int*)calloc(N-1, sizeof(int));
 	process->start_time = start_time;
 	process->n = 0;
+	process -> cpu_shifts = 0;
+	process->first_time = -1;
+	process->cpu_interruption = 0;
 
 	// Retornamos el proceso
 	return process;

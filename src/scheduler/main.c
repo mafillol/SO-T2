@@ -18,7 +18,8 @@ int main(int argc, char *argv[]){
 
   // Mientras no terminemos todos los procesos
   while(!is_finished(queue)){
-    
+    //Variable auxiliar para ver si un proceso ya corrio en el ciclo 
+    bool run = false; 
     for(int i=0;i<queue->len;i++){
       Process* p = queue->process_array[i];
       //Revisamos si algun proceso "llega"
@@ -26,7 +27,46 @@ int main(int argc, char *argv[]){
         p->status = READY;
         p->PID = pid;
         pid++;
-      }      
+      }
+      // Asignamos nueva prioridad
+      if(strcmp(version,"ss") == 0){
+        if(p->priority != ss_priority(p)){
+          p->priority = ss_priority(p);
+        }
+      }
+      else{
+        if(p->priority != ls_priority(p)){
+          p->priority = ls_priority(p);
+        }
+      }
+      // Ordenamos la cola
+      selection_sort(queue);
+
+      // Corremos el proceso
+      if((p->status == RUNNING || p->status == READY) && run == false){
+        if(p->status == RUNNING){
+          p->A[p->n]--;
+        }
+        else{
+          p->status = RUNNING;
+          p->A[p->n]--;
+        }
+        if(p->first_time == -1){
+          p->first_time = current_time;
+        }
+        run = true;
+      }
+      // Veo si el proceso fue sacado
+      else if(p->status == RUNNING){
+        p->status = READY;
+        p->cpu_interruption++;
+      }
+      // Reduzco un tiempo de espera
+      else if(p->status == WAITING){
+        p->B[p->n]--;
+      } 
+
+
       // Revisamos si algun proceso termina
       if(p->n == p->N-1 && p->A[p->n] == 0 &&p->status == RUNNING){
         p->status = FINISHED;
@@ -42,51 +82,23 @@ int main(int argc, char *argv[]){
         p->status = READY;
         p->n ++;
       }
-      // Asignamos nueva prioridad
-      if(strcmp(version,"ss") == 0){
-        if(p->priority != ss_priority(p)){
-          p->priority = ss_priority(p);
-        }
-      }
-      else{
-        if(p->priority != ls_priority(p)){
-          p->priority = ls_priority(p);
-        }
-      }
-      // Ordenamos la cola
-      selection_sort(queue);
-    }
 
-    //Hacemos correr un ciclo
-    bool run = false;
-    for(int i=0;i<queue->len;i++){
-      Process* p = queue->process_array[i];
-
-      // Corremos el proceso
-      if((p->status == RUNNING || p->status == READY) && run == false){
-        if(p->status == RUNNING){
-          p->A[p->n]--;
-        }
-        else{
-          p->status = RUNNING;
-          p->A[p->n]--;
-        }
-        run = true;
-      }
-      // Veo si el proceso fue sacado
-      else if(p->status == RUNNING){
-        p->status = READY;
-      }
-      // Reduzco un tiempo de espera
-      else if(p->status == WAITING){
-        p->B[p->n]--;
-      } 
     }
 
     //Actualizamos el tiempo
     current_time++;
   }
 
+  // Escribimos el archivo de salida
+  FILE* file = fopen(argv[2], "w");
+
+    for(int i=0; i<queue->len; i++){
+      Process* p = queue->process_array[i];
+      fprintf(file, "%s,%d,%d\n", p->name,p->cpu_shifts, p->cpu_interruption);
+    }
+  // Cerramos el archivo de salida
+  fclose(file);
+  // Liberamos la memoria
   destroy_queue(queue);
   return 0;
 }
