@@ -98,6 +98,11 @@ void selection_sort(Queue* q){
 			if(q->process_array[j]->priority < q->process_array[pos_min]->priority){
 				pos_min = j;
 			}
+			else if(q->process_array[j]->priority == q->process_array[pos_min]->priority){
+				if(q->process_array[j]->PID > q->process_array[pos_min]->PID){
+					pos_min = j; 
+				}
+			}
 		}
 
 		if(i != pos_min){

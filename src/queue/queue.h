@@ -40,3 +40,6 @@ void destroy_queue(Queue* queue);
 
 /** Verifica si la cola de procesos termino*/
 int is_finished(Queue* q);
+
+/** Ordena la cola de procesos*/
+void selection_sort(Queue* q);
