@@ -18,6 +18,8 @@ int main(int argc, char *argv[]){
 
   // Mientras no terminemos todos los procesos
   while(!is_finished(queue)){
+
+    //Actualizamos nuestra cola de procesos
     for(int i=0;i<queue->len;i++){
       Process* p = queue->process_array[i];
       //Revisamos si algun proceso "llega"
@@ -32,7 +34,7 @@ int main(int argc, char *argv[]){
           p->priority = ss_priority(p);
         }
       }
-      else{
+      else if (strcmp(version,"ls") == 0){
         if(p->priority != ls_priority(p)){
           p->priority = ls_priority(p);
         }
@@ -56,7 +58,6 @@ int main(int argc, char *argv[]){
           p->status = RUNNING;
           p->A[p->n]--;
           p->cpu_shifts++;
-          p->waiting_time++;
         }
 
         // Asignamos tiempo de respuesta
